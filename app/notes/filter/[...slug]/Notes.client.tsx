@@ -70,7 +70,7 @@ export default function NotesClient({ category }: NotesClientProps) {
       )}
       {isModalOpen && (
         <Modal onClose={closeModal}>
-          <NoteForm onClose={closeModal} />
+          <NoteForm />
         </Modal>
       )}
       <Toaster />
