@@ -5,13 +5,29 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import NotesClient from "./Notes.client";
+import { Metadata } from "next";
 
 interface Props {
   params: Promise<{ slug: string[] }>;
 }
 
-// Prefetch виконується тільки для першої сторінки без пошуку (topic="").
-// На клієнті NotesClient вже сам керує topic та page.
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+
+  return {
+    title: `${slug[0]} Notes`,
+    description: `Notes with tag "${slug[0]}"`,
+    openGraph: {
+      title: `Notes: ${slug[0]}`,
+      description: `Notes with tag "${slug[0]}"`,
+      url: `https://08-zustand-jet.vercel.app/notes/filter/${slug[0]}`,
+      images: [
+        { url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg" },
+      ],
+    },
+  };
+}
+
 const topic = "";
 const page = 1;
 
