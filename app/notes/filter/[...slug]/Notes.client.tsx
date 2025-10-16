@@ -1,8 +1,6 @@
 "use client";
 
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
-import Modal from "@/components/Modal/Modal";
-import NoteForm from "@/components/NoteForm/NoteForm";
 import NoteList from "@/components/NoteList/NoteList";
 import Pagination from "@/components/Pagination/Pagination";
 import SearchBox from "@/components/SearchBox/SearchBox";
@@ -11,33 +9,25 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { useDebouncedCallback } from "use-debounce";
+import Link from "next/link";
 import css from "./NotesPage.module.css";
 
 interface NotesClientProps {
-  category?: string;
+  tag?: string;
 }
 
-export default function NotesClient({ category }: NotesClientProps) {
+export default function NotesClient({ tag }: NotesClientProps) {
   const [topic, setTopic] = useState("");
   const [page, setPage] = useState(1);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data, isError, isSuccess } = useQuery({
-    queryKey: ["notes", topic, page, category],
-    queryFn: () => fetchNotes(topic, page, category),
+    queryKey: ["notes", topic, page, tag],
+    queryFn: () => fetchNotes(topic, page, tag),
     placeholderData: keepPreviousData,
     refetchOnMount: false,
   });
 
   const totalPages = data?.totalPages ?? 0;
-
-  function openModal() {
-    setIsModalOpen(true);
-  }
-
-  function closeModal() {
-    setIsModalOpen(false);
-  }
 
   const updateSearchWord = useDebouncedCallback((searchWord: string) => {
     setTopic(searchWord);
@@ -55,24 +45,23 @@ export default function NotesClient({ category }: NotesClientProps) {
             updatePage={setPage}
           />
         )}
-        <button className={css.button} onClick={openModal}>
+        <Link href="/notes/action/create" className={css.button}>
           Create note +
-        </button>
+        </Link>
       </header>
+
       {isError && (
         <ErrorMessage text="There was an error, please try again..." />
       )}
+
       {data !== undefined && data?.notes.length === 0 && (
         <ErrorMessage text="No notes found" />
       )}
+
       {data !== undefined && data?.notes.length > 0 && (
-        <NoteList notes={data?.notes} />
+        <NoteList notes={data.notes} />
       )}
-      {isModalOpen && (
-        <Modal onClose={closeModal}>
-          <NoteForm />
-        </Modal>
-      )}
+
       <Toaster />
     </div>
   );
